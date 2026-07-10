@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sadhana</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050914">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23050914'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%234f7dfa' stroke-width='4' stroke-dasharray='4 6'/%3E%3Ccircle cx='50' cy='16' r='6' fill='%234f7dfa'/%3E%3C/svg%3E">
+<style>
+/* ========================= TOKENS ========================= */
+:root{
+  --bg:#050914;
+  --bg-soft:#080e1f;
+  --surface:#101a33;
+  --surface-rgb:16,26,51;
+  --surface-2:#16223f;
+  --border:#26355e;
+  --border-soft:rgba(120,150,220,.16);
+  --text:#eef1fb;
+  --text-muted:#8b96bf;
+  --accent:#3f6bf4;
+  --accent-2:#1c3a8f;
+  --accent-soft:rgba(63,107,244,.16);
+  --accent-grad:linear-gradient(135deg, #5a8bff 0%, #2e4fce 100%);
+  --on-accent:#ffffff;
+  --good:#49b487;
+  --bad:#e2594f;
+  --radius:16px;
+  --shadow-sm:0 2px 10px rgba(2,6,20,.28);
+  --shadow-md:0 10px 30px rgba(2,6,20,.38);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Roboto Mono', 'Courier New', monospace;
+}
+[data-theme="light"]{
+  --bg:#eef2fb;
+  --bg-soft:#e4ebfa;
+  --surface:#ffffff;
+  --surface-rgb:255,255,255;
+  --surface-2:#eef2fc;
+  --border:#cdd8f2;
+  --border-soft:rgba(40,81,214,.14);
+  --text:#0e1730;
+  --text-muted:#5b6690;
+  --accent:#2851d6;
+  --accent-2:#15316f;
+  --accent-soft:rgba(40,81,214,.10);
+  --accent-grad:linear-gradient(135deg, #3f6bf4 0%, #1c3a8f 100%);
+  --on-accent:#ffffff;
+  --good:#2f8f5b;
+  --bad:#c0392b;
+  --shadow-sm:0 2px 10px rgba(30,50,100,.08);
+  --shadow-md:0 10px 26px rgba(30,50,100,.12);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(63,107,244,.14), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(28,58,143,.18), transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  padding-bottom:78px;
+  letter-spacing:.01em;
+  transition:background .3s var(--ease), color .3s var(--ease);
+}
+::selection{background:var(--accent); color:var(--on-accent);}
+h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0 0 4px; letter-spacing:.01em;}
+button, input, select, textarea{font-family:inherit; color:inherit;}
+button{transition:transform .15s var(--ease), background .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);}
+button:active{transform:scale(.96);}
+a{color:var(--accent);}
+.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums;}
+@keyframes fadeSlideIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+main .card, main .page-title, main .grid2, main .grid3{animation:fadeSlideIn .38s var(--ease);}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px 12px;
+  background:linear-gradient(180deg, var(--bg) 65%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand .mark{width:30px;height:30px;flex:0 0 auto; filter:drop-shadow(0 0 6px rgba(63,107,244,.45));}
+.brand .name{font-family:var(--font-display); font-size:19px; letter-spacing:.02em;}
+.brand .date{font-size:11px; color:var(--text-muted); margin-top:1px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--border-soft); background:rgba(var(--surface-rgb),.6);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer; box-shadow:var(--shadow-sm);
+}
+.icon-btn:active{transform:scale(.92);}
+.icon-btn svg{width:18px;height:18px;}
+
+/* ---------- nav drawer ---------- */
+.drawer-backdrop{
+  position:fixed; inset:0; background:rgba(2,5,15,.55); backdrop-filter:blur(2px); z-index:40;
+  opacity:0; pointer-events:none; transition:opacity .25s var(--ease);
+}
+.drawer-backdrop.open{opacity:1; pointer-events:auto;}
+.drawer{
+  position:fixed; top:0; right:0; height:100%; width:78%; max-width:320px;
+  background:rgba(var(--surface-rgb),.86); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  z-index:41; padding:20px 14px;
+  transform:translateX(100%); transition:transform .3s var(--ease);
+  overflow-y:auto; border-left:1px solid var(--border-soft); box-shadow:var(--shadow-md);
+}
+.drawer.open{transform:translateX(0);}
+.drawer h3{color:var(--text-muted); font-family:var(--font-body); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin:18px 8px 8px;}
+.drawer button.nav-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  background:none; border:none; text-align:left; padding:11px 8px;
+  border-radius:10px; font-size:15px; color:var(--text); cursor:pointer;
+  transition:background .2s var(--ease), color .2s var(--ease);
+}
+.drawer button.nav-item.active{background:var(--accent-soft); color:var(--accent);}
+.drawer button.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--border); transition:background .2s var(--ease);}
+.drawer button.nav-item.active .dot{background:var(--accent); box-shadow:0 0 6px var(--accent);}
+
+/* ---------- bottom nav ---------- */
+.bottomnav{
+  position:fixed; bottom:0; left:0; right:0; z-index:30;
+  display:flex; background:rgba(var(--surface-rgb),.82); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--border-soft); box-shadow:0 -8px 24px rgba(2,6,20,.24);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.bottomnav button{
+  flex:1; background:none; border:none; display:flex; flex-direction:column;
+  align-items:center; gap:3px; padding:6px 2px; color:var(--text-muted);
+  font-size:10.5px; cursor:pointer; border-radius:10px;
+  transition:color .2s var(--ease);
+}
+.bottomnav button.active{color:var(--accent);}
+.bottomnav button svg{width:20px;height:20px; transition:filter .2s var(--ease);}
+.bottomnav button.active svg{filter:drop-shadow(0 0 5px rgba(63,107,244,.55));}
+
+/* ---------- layout ---------- */
+main{padding:4px 16px 24px; max-width:640px; margin:0 auto;}
+.page-title{padding:6px 2px 14px;}
+.page-title p{margin:2px 0 0; color:var(--text-muted); font-size:13px;}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+
+.card{
+  background:rgba(var(--surface-rgb),.66); border:1px solid var(--border-soft); border-radius:var(--radius);
+  padding:16px; margin-bottom:14px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .25s var(--ease), transform .25s var(--ease), border-color .25s var(--ease);
+}
+.card.tight{padding:13px;}
+.stat-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin-bottom:7px;}
+.stat-value{font-family:var(--font-mono); font-size:22px; font-weight:700; letter-spacing:.01em;}
+.stat-sub{font-size:11.5px; color:var(--text-muted); margin-top:4px; line-height:1.5;}
+
+.section-title{
+  font-family:var(--font-display); font-size:16px; margin:24px 2px 12px;
+  display:flex; align-items:center; gap:8px; color:var(--text);
+}
+.section-title .rule{flex:1; height:1px; background:linear-gradient(90deg, var(--border), transparent);}
+
+/* mala ring - signature element */
+.mala-wrap{display:flex; align-items:center; gap:18px;}
+.mala-ring{position:relative; width:132px; height:132px; flex:0 0 auto;}
+.mala-ring svg{width:100%; height:100%;}
+.mala-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.mala-center .n{font-family:var(--font-mono); font-size:26px; font-weight:700;}
+.mala-center .lbl{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em;}
+
+/* progress bar */
+.pbar{height:9px; border-radius:6px; background:var(--surface-2); overflow:hidden; border:1px solid var(--border-soft); box-shadow:inset 0 1px 3px rgba(2,6,20,.25);}
+.pbar > div{height:100%; background:var(--accent-grad); border-radius:6px; transition:width .5s var(--ease); box-shadow:0 0 10px rgba(63,107,244,.5);}
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  background:var(--accent-grad); color:var(--on-accent); border:none; border-radius:12px;
+  padding:12px 16px; font-size:14px; font-weight:600; cursor:pointer;
+  box-shadow:0 4px 16px rgba(63,107,244,.35);
+}
+.btn:active{box-shadow:0 2px 8px rgba(63,107,244,.3);}
+.btn.secondary{background:rgba(var(--surface-rgb),.7); color:var(--text); border:1px solid var(--border-soft); box-shadow:var(--shadow-sm);}
+.btn.danger{background:var(--bad); color:#fff; box-shadow:0 4px 16px rgba(226,89,79,.3);}
+.btn.block{width:100%;}
+.btn.sm{padding:7px 12px; font-size:12.5px;}
+
+/* form elements */
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;}
+.field input[type=number], .field input[type=text], .field input[type=date], .field input[type=time], .field select, .field textarea{
+  width:100%; background:rgba(var(--surface-rgb),.55); border:1px solid var(--border-soft); border-radius:10px;
+  padding:10px 12px; font-size:15px; color:var(--text);
+  transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.field input:focus, .field select:focus, .field textarea:focus{
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+.field textarea{min-height:88px; resize:vertical; font-family:var(--font-body);}
+.row{display:flex; gap:10px;}
+.row > .field{flex:1;}
+
+.toggle-row{display:flex; gap:8px; flex-wrap:wrap;}
+.toggle{
+  flex:1; min-width:64px; text-align:center; padding:9px 6px; border-radius:10px;
+  border:1px solid var(--border-soft); background:var(--surface-2); font-size:12.5px; cursor:pointer;
+  color:var(--text-muted); transition:all .2s var(--ease);
+}
+.toggle.yes.on{background:rgba(127,174,122,.18); border-color:var(--good); color:var(--good); font-weight:600;}
+.toggle.no.on{background:rgba(181,83,60,.18); border-color:var(--bad); color:var(--bad); font-weight:600;}
+
+.vice-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.vice-item{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:9px 10px;}
+.vice-item .name{font-size:12.5px; margin-bottom:6px;}
+.vice-toggle{display:flex; gap:6px;}
+.vice-toggle button{flex:1; padding:6px 0; border-radius:7px; border:1px solid var(--border); background:var(--bg-soft); font-size:11px; color:var(--text-muted); cursor:pointer;}
+.vice-toggle button.on-yes{background:rgba(127,174,122,.2); border-color:var(--good); color:var(--good); font-weight:700;}
+.vice-toggle button.on-no{background:rgba(181,83,60,.2); border-color:var(--bad); color:var(--bad); font-weight:700;}
+
+/* date nav */
+.datenav{display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+.datenav .icon-btn{width:36px;height:36px;}
+.datenav .cur{flex:1; text-align:center;}
+.datenav .cur .d{font-family:var(--font-display); font-size:17px;}
+.datenav .cur .w{font-size:11px; color:var(--text-muted);}
+
+/* table */
+table.simple{width:100%; border-collapse:collapse; font-size:13px;}
+table.simple th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); padding:6px 4px; border-bottom:1px solid var(--border);}
+table.simple td{padding:7px 4px; border-bottom:1px solid var(--border);}
+table.simple tr:last-child td{border-bottom:none;}
+.right{text-align:right;}
+.center{text-align:center;}
+
+.pill{display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600;}
+.pill.good{background:rgba(127,174,122,.18); color:var(--good);}
+.pill.bad{background:rgba(181,83,60,.18); color:var(--bad);}
+.pill.neutral{background:var(--surface-2); color:var(--text-muted);}
+
+/* heatmap */
+.heatgrid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+.heatgrid .dow{font-size:10px; color:var(--text-muted); text-align:center; padding-bottom:2px;}
+.heatcell{aspect-ratio:1; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-family:var(--font-mono); border:1px solid var(--border);}
+.heatcell.empty{border:none; background:transparent;}
+.heatcell.h0{background:var(--surface-2); color:var(--text-muted);}
+.heatcell.h1{background:rgba(63,107,244,.25); color:var(--text);}
+.heatcell.h2{background:rgba(63,107,244,.5); color:var(--text);}
+.heatcell.h3{background:rgba(63,107,244,.85); color:var(--on-accent); font-weight:700;}
+.heatcell.today{outline:2px solid var(--accent); outline-offset:1px; box-shadow:0 0 8px rgba(63,107,244,.5);}
+
+/* bar chart (css only) */
+.barchart{display:flex; align-items:flex-end; gap:6px; height:120px; padding-top:10px;}
+.barchart .bar{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+.barchart .bar .fill{width:100%; background:var(--accent-grad); border-radius:6px 6px 0 0; min-height:2px; box-shadow:0 -2px 8px rgba(63,107,244,.35); transition:height .4s var(--ease);}
+.barchart .bar .lbl{font-size:9.5px; color:var(--text-muted); margin-top:4px;}
+
+.subtabs{display:flex; gap:6px; margin-bottom:16px; overflow-x:auto; padding-bottom:2px;}
+.subtabs button{
+  flex:0 0 auto; padding:8px 14px; border-radius:20px; border:1px solid var(--border-soft);
+  background:rgba(var(--surface-rgb),.6); color:var(--text-muted); font-size:12.5px; cursor:pointer; white-space:nowrap;
+  transition:all .2s var(--ease);
+}
+.subtabs button.active{background:var(--accent-grad); color:var(--on-accent); border-color:var(--accent); font-weight:600; box-shadow:0 4px 14px rgba(63,107,244,.35);}
+
+.empty-note{color:var(--text-muted); font-size:13px; padding:10px 2px;}
+.divider{height:1px; background:var(--border); margin:14px 0;}
+.rule-list{list-style:none; margin:0; padding:0;}
+.rule-list li{display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px;}
+.rule-list li:last-child{border-bottom:none;}
+.rule-list li .idx{width:20px; color:var(--text-muted); font-family:var(--font-mono); font-size:12px;}
+.rule-list li input{flex:1; background:none; border:none; font-size:14px; color:var(--text); padding:2px 0;}
+.rule-list li button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:2px 6px;}
+
+.toast{
+  position:fixed; left:50%; bottom:96px; transform:translate(-50%,20px);
+  background:rgba(var(--surface-rgb),.9); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-soft); color:var(--text);
+  padding:10px 18px; border-radius:30px; font-size:13px; z-index:60;
+  opacity:0; transition:all .3s var(--ease); pointer-events:none; box-shadow:var(--shadow-md);
+}
+.toast.show{opacity:1; transform:translate(-50%,0);}
+
+.milestone-item{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border);}
+.milestone-item:last-child{border-bottom:none;}
+.milestone-item .mi-num{width:26px; height:26px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-family:var(--font-mono); flex:0 0 auto;}
+.milestone-item.achieved .mi-num{background:var(--accent-grad); color:var(--on-accent); font-weight:700; box-shadow:0 2px 10px rgba(63,107,244,.4);}
+.milestone-item .mi-body{flex:1; min-width:0;}
+.milestone-item .mi-target{font-family:var(--font-mono); font-size:13.5px;}
+.milestone-item .mi-meta{font-size:11px; color:var(--text-muted); margin-top:2px;}
+
+.settings-group{margin-bottom:22px;}
+.settings-group h3{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin:0 0 10px;}
+
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:20px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+
+@media print{
+  .topbar,.bottomnav,.drawer,.drawer-backdrop,.subtabs,.no-print{display:none !important;}
+  body{padding-bottom:0; background:#fff; color:#111;}
+  .card{border:1px solid #ccc; background:#fff;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--border)" stroke-width="3"/><circle cx="50" cy="50" r="34" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="4 6.2"/><circle cx="50" cy="16" r="6" fill="var(--accent)"/></svg>
+    <div>
+      <div class="name">Sadhana</div>
+      <div class="date" id="topbarDate">—</div>
+    </div>
+  </div>
+  <button class="icon-btn" id="menuBtn" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<nav class="drawer" id="drawer">
+  <h3>Practice</h3>
+  <button class="nav-item" data-page="dashboard"><span class="dot"></span>Master Dashboard</button>
+  <button class="nav-item" data-page="entry"><span class="dot"></span>Daily Entry</button>
+  <button class="nav-item" data-page="analysis"><span class="dot"></span>Analysis</button>
+  <button class="nav-item" data-page="discipline"><span class="dot"></span>Discipline</button>
+  <button class="nav-item" data-page="milestones"><span class="dot"></span>Milestones</button>
+  <button class="nav-item" data-page="reports"><span class="dot"></span>Reports</button>
+  <h3>Reference</h3>
+  <button class="nav-item" data-page="rules"><span class="dot"></span>Sadhana Rules</button>
+  <button class="nav-item" data-page="motivation"><span class="dot"></span>Motivation</button>
+  <h3>System</h3>
+  <button class="nav-item" data-page="settings"><span class="dot"></span>Settings</button>
+</nav>
+
+<main id="app"></main>
+
+<div class="bottomnav">
+  <button data-page="dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    Home
+  </button>
+  <button data-page="entry">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    Entry
+  </button>
+  <button data-page="analysis">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M11 19V4"/><path d="M18 19v-7"/></svg>
+    Analysis
+  </button>
+  <button data-page="milestones">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.6 6.6L21 10l-5.2 4.3L17.4 21 12 17.3 6.6 21l1.6-6.7L3 10l6.4-1.4z"/></svg>
+    Goals
+  </button>
+  <button data-page="settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+    Settings
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   SADHANA — offline japa & discipline tracker
+   Single-file app. All data stored locally on this device
+   (localStorage) plus JSON export/import for backup.
+   ============================================================ */
+
+/* ---------------- constants ---------------- */
+const VICE_KEYS = ["kaam","krodh","aham","lobh","moh","irsha","dwesh","ninda","pravachan"];
+const VICE_LABELS = {kaam:"Kaam",krodh:"Krodh",aham:"Aham",lobh:"Lobh",moh:"Moh",irsha:"Irsha",dwesh:"Dwesh",ninda:"Ninda",pravachan:"Pravachan"};
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+const DEFAULT_SETTINGS = {
+  startDate: toISO(new Date()),
+  dailyTarget: 16,
+  lifetimeTarget: 100000000,
+  theme: "dark",
+  milestones: [100000,500000,1000000,2000000,5000000,10000000,20000000,30000000,40000000,50000000,60000000,70000000,80000000,90000000,100000000,120000000,140000000,160000000,180000000,200000000]
+};
+const DEFAULT_RULES = {
+  mm: ["Kaam","Krodh","Aham","Ninda","Pravachan","Dosh","Apmaan (Tinka)"],
+  sm: ["Aham","Ichha","Asha","Trishna","Shakti","Samman","Moh","Vyakti","Pad","Sthan","Lobh","Dhan","Vastu","Anukulta","Raag","Sharir","Sansar","Hasi","Jagat Preeti","Bahut Baat"],
+  hk: ["Alasya","Pramaad"],
+  mantra: "Hare Krishna Hare Krishna Krishna Krishna Hare Hare / Hare Rama Hare Rama Rama Rama Hare Hare"
+};
+const DEFAULT_NOTES = {page1:"", page2:"", page3:""};
+
+/* ---------------- date helpers ---------------- */
+function toISO(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
+function parseISO(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y, m-1, d); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function todayDate(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function todayISO(){ return toISO(todayDate()); }
+function fmtLong(d){ return d.toLocaleDateString(undefined,{weekday:"short", day:"2-digit", month:"short", year:"numeric"}); }
+function fmtShort(d){ return d.toLocaleDateString(undefined,{day:"2-digit", month:"short"}); }
+function fmtMonthYear(d){ return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function eomonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
+function clamp(n,lo,hi){ return Math.max(lo, Math.min(hi, n)); }
+function pct(n){ return (n*100).toFixed(1)+"%"; }
+function numFmt(n){ if(n===null||n===undefined||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
+function safeDiv(a,b){ return b? a/b : 0; }
+
+/* ---------------- storage ---------------- */
+const Store = {
+  load(key, fallback){
+    try{ const raw = localStorage.getItem(key); if(!raw) return structuredCloneSafe(fallback); return JSON.parse(raw); }
+    catch(e){ return structuredCloneSafe(fallback); }
+  },
+  save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); return true; }catch(e){ return false; } }
+};
+function structuredCloneSafe(v){ return JSON.parse(JSON.stringify(v)); }
+
+let settings = Object.assign({}, DEFAULT_SETTINGS, Store.load("sadhana.settings", DEFAULT_SETTINGS));
+let entries = Store.load("sadhana.entries", {});
+let rules = Object.assign({}, DEFAULT_RULES, Store.load("sadhana.rules", DEFAULT_RULES));
+let notes = Object.assign({}, DEFAULT_NOTES, Store.load("sadhana.notes", DEFAULT_NOTES));
+
+function persistSettings(){ Store.save("sadhana.settings", settings); }
+function persistEntries(){ Store.save("sadhana.entries", entries); }
+function persistRules(){ Store.save("sadhana.rules", rules); }
+function persistNotes(){ Store.save("sadhana.notes", notes); }
+
+function getEntry(dateKey){
+  return entries[dateKey] || {japa:0, mm:"", sm:"", hk:"", wake:"", sleep:"", exercise:"", muscleGrp:"", duration:"", screen:"", notes:"",
+    kaam:"", krodh:"", aham:"", lobh:"", moh:"", irsha:"", dwesh:"", ninda:"", pravachan:""};
+}
+
+/* ---------------- computed series (mirrors Daily Entry sheet's running formulas) ---------------- */
+let _seriesCache = null;
+let _seriesCacheKey = null;
+function computeSeries(){
+  const cacheKey = settings.startDate + "|" + JSON.stringify(Object.keys(entries).length) + "|" + todayISO();
+  if(_seriesCache && _seriesCacheKey===cacheKey) return _seriesCache;
+
+  const start = parseISO(settings.startDate);
+  let end = todayDate();
+  for(const k in entries){ const d = parseISO(k); if(d>end) end = d; }
+
+  const days = [];
+  let cum = 0, streak = 0, perfectStreak = 0;
+  const viceStreak = {}; VICE_KEYS.forEach(v=>viceStreak[v]=0);
+  const viceLongest = {}; VICE_KEYS.forEach(v=>viceLongest[v]=0);
+  let longestStreak = 0, longestPerfectStreak = 0;
+
+  for(let d=new Date(start); d<=end; d=addDays(d,1)){
+    const key = toISO(d);
+    const e = entries[key];
+    const japa = e ? (Number(e.japa)||0) : 0;
+    cum += japa;
+    const active = japa>0 ? 1 : 0;
+    streak = active ? streak+1 : 0;
+    if(streak>longestStreak) longestStreak = streak;
+
+    let yesCount = 0, noCount = 0, perfectCount = 0;
+    const viceVals = {};
+    VICE_KEYS.forEach(v=>{
+      const val = e ? (e[v]||"") : "";
+      viceVals[v] = val;
+      if(val==="Yes"){ viceStreak[v]+=1; perfectCount++; yesCount++; }
+      else { viceStreak[v]=0; if(val==="No") noCount++; }
+      if(viceStreak[v]>viceLongest[v]) viceLongest[v]=viceStreak[v];
+    });
+    const perfect = perfectCount===VICE_KEYS.length ? 1 : 0;
+    perfectStreak = perfect ? perfectStreak+1 : 0;
+    if(perfectStreak>longestPerfectStreak) longestPerfectStreak = perfectStreak;
+
+    days.push({
+      date:key, dateObj:new Date(d), japa,
+      achv: safeDiv(japa, settings.dailyTarget),
+      active, cum, streak,
+      viceVals, viceStreakSnapshot:Object.assign({},viceStreak),
+      perfect, perfectStreak,
+      mm:e?e.mm||"":"", sm:e?e.sm||"":"", hk:e?e.hk||"":"",
+      hasEntry: !!e
+    });
+  }
+  const byDate = {}; days.forEach(d=>byDate[d.date]=d);
+  _seriesCache = {days, byDate, start, end, longestStreak, viceLongest, longestPerfectStreak};
+  _seriesCacheKey = cacheKey;
+  return _seriesCache;
+}
+function invalidateSeries(){ _seriesCache=null; }
+
+function milestoneStatus(series){
+  const cum = series.days.length ? series.days[series.days.length-1].cum : 0;
+  const list = settings.milestones.slice().sort((a,b)=>a-b);
+  let achievedCount = 0;
+  for(const m of list){ if(cum>=m) achievedCount++; }
+  const next = list.find(m=>m>cum);
+  const latest = list.filter(m=>m<=cum).pop();
+  return {cum, list, achievedCount, next, latest};
+}
+
+/* ---------------- toast ---------------- */
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
+}
+
+/* ---------------- router ---------------- */
+let currentPage = "dashboard";
+let entryDate = todayISO();
+let analysisTab = "weekly";
+let analysisWeekEnd = todayISO();
+let analysisMonth = todayISO();
+let analysisYear = new Date().getFullYear();
+let reportsTab = "monthly";
+let motivationPage = "page1";
+
+const PAGES = {
+  dashboard: renderDashboard,
+  entry: renderEntry,
+  analysis: renderAnalysis,
+  discipline: renderDiscipline,
+  milestones: renderMilestones,
+  reports: renderReports,
+  rules: renderRules,
+  motivation: renderMotivation,
+  settings: renderSettings
+};
+
+function navigate(page){
+  currentPage = page;
+  document.querySelectorAll(".drawer .nav-item").forEach(b=>b.classList.toggle("active", b.dataset.page===page));
+  document.querySelectorAll(".bottomnav button").forEach(b=>b.classList.toggle("active", b.dataset.page===page));
+  closeDrawer();
+  render();
+  window.scrollTo(0,0);
+}
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  (PAGES[currentPage] || renderDashboard)(app);
+  document.getElementById("topbarDate").textContent = fmtLong(todayDate());
+}
+
+function openDrawer(){ document.getElementById("drawer").classList.add("open"); document.getElementById("drawerBackdrop").classList.add("open"); }
+function closeDrawer(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("drawerBackdrop").classList.remove("open"); }
+
+document.getElementById("menuBtn").addEventListener("click", openDrawer);
+document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer);
+document.querySelectorAll(".drawer .nav-item, .bottomnav button").forEach(b=>{
+  b.addEventListener("click", ()=>navigate(b.dataset.page));
+});
+
+/* ============================================================
+   DOM helper
+   ============================================================ */
+function el(html){ const t=document.createElement("template"); t.innerHTML=html.trim(); return t.content.firstElementChild; }
+function h(strings, ...vals){ return strings.reduce((acc,s,i)=> acc+s+(vals[i]!==undefined?vals[i]:""), ""); }
+
+/* ============================================================
+   PAGE: Dashboard
+   ============================================================ */
+function renderDashboard(app){
+  const series = computeSeries();
+  const today = series.byDate[todayISO()];
+  const ms = milestoneStatus(series);
+  const cum = ms.cum;
+  const lifetimeAchv = safeDiv(cum, settings.lifetimeTarget);
+  const todaysJapa = today ? today.japa : 0;
+  const todaysAchv = safeDiv(todaysJapa, settings.dailyTarget);
+  const currentStreak = today ? today.streak : 0;
+  const longestStreak = series.longestStreak;
+
+  const activeDays = series.days.reduce((s,d)=>s+d.active,0);
+  const avgDaily = safeDiv(cum, series.days.length || 1);
+  const remaining = Math.max(settings.lifetimeTarget - cum, 0);
+  const estCompletion = avgDaily>0 ? addDays(todayDate(), Math.ceil(remaining/avgDaily)) : null;
+  const remainingYears = avgDaily>0 ? (remaining/avgDaily/365) : null;
+
+  const last7 = series.days.slice(-7);
+  const weeklyAvg = safeDiv(last7.reduce((s,d)=>s+d.japa,0), last7.length||1);
+  const now = todayDate();
+  const monthDays = series.days.filter(d=>d.dateObj.getMonth()===now.getMonth() && d.dateObj.getFullYear()===now.getFullYear());
+  const monthlyAvg = safeDiv(monthDays.reduce((s,d)=>s+d.japa,0), monthDays.length||1);
+  const yearDays = series.days.filter(d=>d.dateObj.getFullYear()===now.getFullYear());
+  const yearlyAvg = safeDiv(yearDays.reduce((s,d)=>s+d.japa,0), yearDays.length||1);
+
+  const beadCount = clamp(settings.dailyTarget, 1, 32);
+  const filled = clamp(todaysJapa, 0, beadCount);
+
+  app.appendChild(el(`
+    <div class="page-title"><h1>Master Dashboard</h1><p>Real-time summary of lifetime spiritual progress.</p></div>
+  `));
+
+  const top = el(`<div class="card"></div>`);
+  top.appendChild(el(`
+    <div class="mala-wrap">
+      <div class="mala-ring">
+        ${malaRingSVG(beadCount, filled)}
+        <div class="mala-center">
+          <div class="n num">${numFmt(todaysJapa)}</div>
+          <div class="lbl">of ${numFmt(settings.dailyTarget)} rounds</div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div class="stat-label">Today's Achievement</div>
+        <div class="stat-value">${pct(todaysAchv)}</div>
+        <div class="stat-sub">Current streak: <b class="num">${currentStreak}</b> day${currentStreak===1?"":"s"}</div>
+        <div class="stat-sub">Longest streak: <b class="num">${longestStreak}</b> days</div>
+      </div>
+    </div>
+  `));
+  app.appendChild(top);
+
+  app.appendChild(el(`
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Lifetime Target</div><div class="stat-value">${numFmt(settings.lifetimeTarget)}</div></div>
+      <div class="card tight"><div class="stat-label">Lifetime Completed</div><div class="stat-value">${numFmt(cum)}</div></div>
+      <div class="card tight"><div class="stat-label">Remaining Japa</div><div class="stat-value">${numFmt(remaining)}</div></div>
+      <div class="card tight"><div class="stat-label">Lifetime Achievement</div><div class="stat-value">${pct(lifetimeAchv)}</div></div>
+    </div>
+  `));
+
+  const progressCard = el(`<div class="card"><div class="stat-label">Lifetime Progress</div></div>`);
+  progressCard.appendChild(el(`<div class="pbar" style="margin-top:6px;"><div style="width:${clamp(lifetimeAchv*100,0,100)}%"></div></div>`));
+  progressCard.appendChild(el(`<div class="stat-sub" style="margin-top:8px;">${pct(lifetimeAchv)} of ${numFmt(settings.lifetimeTarget)} · Est. completion ${estCompletion?fmtShort(estCompletion)+" "+estCompletion.getFullYear():"N/A"}${remainingYears?` (~${remainingYears.toFixed(1)} yrs)`:""}</div>`));
+  app.appendChild(progressCard);
+
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Weekly Avg</div><div class="stat-value">${avgDaily?weeklyAvg.toFixed(1):"0"}</div></div>
+      <div class="card tight"><div class="stat-label">Monthly Avg</div><div class="stat-value">${monthlyAvg.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Yearly Avg</div><div class="stat-value">${yearlyAvg.toFixed(1)}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Active Days</div><div class="stat-value">${numFmt(activeDays)}</div></div>
+      <div class="card tight"><div class="stat-label">Avg Daily Japa</div><div class="stat-value">${avgDaily.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Latest Milestone</div><div class="stat-value" style="font-size:14px;">${ms.latest?numFmt(ms.latest):"None yet"}</div></div>
+      <div class="card tight"><div class="stat-label">Next Milestone</div><div class="stat-value" style="font-size:14px;">${ms.next?numFmt(ms.next):"Complete"}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`<div class="section-title">Previous 7 Days<div class="rule"></div></div>`));
+  const tbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Date</th><th class="right">Japa</th><th class="right">Achv %</th></tr></thead><tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  last7.forEach(d=>{
+    tbody.appendChild(el(`<tr><td>${fmtShort(d.dateObj)}</td><td class="right num">${numFmt(d.japa)}</td><td class="right num">${pct(d.achv)}</td></tr>`));
+  });
+  if(!last7.length) tbody.appendChild(el(`<tr><td colspan="3" class="empty-note">No entries yet — add today's japa in Daily Entry.</td></tr>`));
+  app.appendChild(tbl);
+
+  app.appendChild(el(`
+    <button class="btn block" style="margin-top:6px;" id="goEntryBtn">Log today's sadhana →</button>
+  `));
+  app.querySelector("#goEntryBtn").addEventListener("click", ()=>{ entryDate = todayISO(); navigate("entry"); });
+}
+
+function malaRingSVG(total, filled){
+  const R = 58, cx=66, cy=66;
+  let dots = "";
+  for(let i=0;i<total;i++){
+    const angle = (i/total)*Math.PI*2 - Math.PI/2;
+    const x = cx + R*Math.cos(angle), y = cy + R*Math.sin(angle);
+    const on = i<filled;
+    dots += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${total>20?3.6:5.2}" fill="${on?"var(--accent)":"var(--surface-2)"}" stroke="${on?"var(--accent-2)":"var(--border)"}" stroke-width="1"/>`;
+  }
+  return `<svg viewBox="0 0 132 132">${dots}</svg>`;
+}
+
+/* ============================================================
+   PAGE: Daily Entry
+   ============================================================ */
+function renderEntry(app){
+  const series = computeSeries();
+  const e = Object.assign({}, getEntry(entryDate));
+  const dObj = parseISO(entryDate);
+  const isFuture = dObj > todayDate();
+
+  app.appendChild(el(`<div class="page-title"><h1>Daily Entry</h1><p>Enter today's japa and discipline data.</p></div>`));
+
+  const nav = el(`
+    <div class="datenav">
+      <button class="icon-btn" id="prevDay">‹</button>
+      <div class="cur"><div class="d">${fmtLong(dObj)}</div><div class="w">${isFuture?"Future date":"Row "+((series.byDate[entryDate]?series.days.indexOf(series.byDate[entryDate]):-1)+1)}</div></div>
+      <button class="icon-btn" id="nextDay">›</button>
+    </div>
+  `);
+  app.appendChild(nav);
+  nav.querySelector("#prevDay").addEventListener("click", ()=>{ entryDate=toISO(addDays(dObj,-1)); render(); });
+  nav.querySelector("#nextDay").addEventListener("click", ()=>{ entryDate=toISO(addDays(dObj,1)); render(); });
+
+  const quickRow = el(`<div class="row" style="margin-bottom:14px;">
+    <input type="date" id="dateJump" value="${entryDate}" style="flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 10px;color:var(--text);">
+    <button class="btn secondary sm" id="todayBtn">Today</button>
+  </div>`);
+  app.appendChild(quickRow);
+  quickRow.querySelector("#dateJump").addEventListener("change", ev=>{ entryDate = ev.target.value || todayISO(); render(); });
+  quickRow.querySelector("#todayBtn").addEventListener("click", ()=>{ entryDate = todayISO(); render(); });
+
+  const todaySnap = series.byDate[entryDate];
+  app.appendChild(el(`
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Achievement %</div><div class="stat-value">${pct(safeDiv(Number(e.japa)||0, settings.dailyTarget))}</div></div>
+      <div class="card tight"><div class="stat-label">Cumulative Japa</div><div class="stat-value">${numFmt(todaySnap?todaySnap.cum:"")}</div></div>
+    </div>
+  `));
+
+  const form = el(`<div class="card"></div>`);
+
+  form.appendChild(el(`
+    <div class="field">
+      <label>Today's Japa (rounds)</label>
+      <input type="number" min="0" id="f_japa" value="${e.japa||0}" inputmode="numeric">
+    </div>
+  `));
+
+  const yn = ["mm","sm","hk"];
+  const ynLabel = {mm:"MM done", sm:"SM done", hk:"HK done"};
+  const ynRow = el(`<div class="field"><label>Core disciplines</label><div class="toggle-row" id="ynRow"></div></div>`);
+  const ynWrap = ynRow.querySelector("#ynRow");
+  yn.forEach(k=>{
+    const val = e[k]||"";
+    ynWrap.appendChild(el(`<div class="toggle" data-key="${k}" data-val="${val}" style="cursor:pointer;">${ynLabel[k]}<br><b class="num" style="font-size:13px;">${val||"—"}</b></div>`));
+  });
+  form.appendChild(ynRow);
+  ynWrap.querySelectorAll(".toggle").forEach(t=>{
+    t.addEventListener("click", ()=>{
+      const cur = t.dataset.val;
+      const next = cur==="Yes" ? "No" : cur==="No" ? "" : "Yes";
+      t.dataset.val = next;
+      t.querySelector("b").textContent = next||"—";
+      t.classList.remove("yes","no"); t.classList.remove("on");
+      if(next==="Yes"){ t.classList.add("yes","on"); } else if(next==="No"){ t.classList.add("no","on"); }
+    });
+    if(t.dataset.val==="Yes") t.classList.add("yes","on");
+    if(t.dataset.val==="No") t.classList.add("no","on");
+  });
+
+  form.appendChild(el(`
+    <div class="row">
+      <div class="field"><label>Wake-up</label><input type="time" id="f_wake" value="${e.wake||""}"></div>
+      <div class="field"><label>Sleep</label><input type="time" id="f_sleep" value="${e.sleep||""}"></div>
+    </div>
+  `));
+  form.appendChild(el(`
+    <div class="row">
+      <div class="field"><label>Exercise</label><input type="text" id="f_exercise" placeholder="e.g. Yes / type" value="${e.exercise||""}"></div>
+      <div class="field"><label>Muscle group</label><input type="text" id="f_muscle" placeholder="e.g. Legs" value="${e.muscleGrp||""}"></div>
+    </div>
+  `));
+  form.appendChild(el(`
+    <div class="row">
+      <div class="field"><label>Duration (min)</label><input type="number" min="0" id="f_duration" value="${e.duration||""}"></div>
+      <div class="field"><label>Screen (hrs)</label><input type="number" min="0" step="0.1" id="f_screen" value="${e.screen||""}"></div>
+    </div>
+  `));
+  form.appendChild(el(`
+    <div class="field"><label>Notes</label><textarea id="f_notes" placeholder="Anything worth remembering about today...">${e.notes||""}</textarea></div>
+  `));
+
+  app.appendChild(form);
+
+  app.appendChild(el(`<div class="section-title">Nine Disciplines <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(mark each Yes if avoided today)</span><div class="rule"></div></div>`));
+  const viceCard = el(`<div class="card tight"><div class="vice-grid" id="viceGrid"></div></div>`);
+  const grid = viceCard.querySelector("#viceGrid");
+  VICE_KEYS.forEach(v=>{
+    const val = e[v]||"";
+    grid.appendChild(el(`
+      <div class="vice-item" data-key="${v}">
+        <div class="name">${VICE_LABELS[v]}</div>
+        <div class="vice-toggle">
+          <button data-set="Yes" class="${val==='Yes'?'on-yes':''}">Yes</button>
+          <button data-set="No" class="${val==='No'?'on-no':''}">No</button>
+        </div>
+      </div>
+    `));
+  });
+  grid.querySelectorAll(".vice-item").forEach(item=>{
+    item.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const wantVal = btn.dataset.set;
+        const already = btn.classList.contains("on-yes")||btn.classList.contains("on-no");
+        item.dataset.value = already ? "" : wantVal;
+        item.querySelectorAll("button").forEach(b=>b.classList.remove("on-yes","on-no"));
+        if(!already){ btn.classList.add(wantVal==="Yes"?"on-yes":"on-no"); }
+      });
+    });
+  });
+  app.appendChild(viceCard);
+
+  app.appendChild(el(`<button class="btn block" id="saveEntryBtn" style="margin-top:4px;">Save entry</button>`));
+
+  app.querySelector("#saveEntryBtn").addEventListener("click", ()=>{
+    const rec = {
+      japa: Number(form.querySelector("#f_japa").value)||0,
+      mm: ynWrap.querySelector('[data-key="mm"]').dataset.val||"",
+      sm: ynWrap.querySelector('[data-key="sm"]').dataset.val||"",
+      hk: ynWrap.querySelector('[data-key="hk"]').dataset.val||"",
+      wake: form.querySelector("#f_wake").value||"",
+      sleep: form.querySelector("#f_sleep").value||"",
+      exercise: form.querySelector("#f_exercise").value||"",
+      muscleGrp: form.querySelector("#f_muscle").value||"",
+      duration: form.querySelector("#f_duration").value||"",
+      screen: form.querySelector("#f_screen").value||"",
+      notes: form.querySelector("#f_notes").value||""
+    };
+    VICE_KEYS.forEach(v=>{
+      const item = grid.querySelector(`.vice-item[data-key="${v}"]`);
+      rec[v] = item.dataset.value || "";
+    });
+    entries[entryDate] = rec;
+    persistEntries();
+    invalidateSeries();
+    toast("Saved · "+fmtShort(dObj));
+    render();
+  });
+}
+
+/* ============================================================
+   PAGE: Analysis
+   ============================================================ */
+function renderAnalysis(app){
+  app.appendChild(el(`<div class="page-title"><h1>Analysis</h1><p>Weekly, monthly, yearly and lifetime insight — fully automatic.</p></div>`));
+  const tabs = el(`
+    <div class="subtabs">
+      <button data-t="weekly">Weekly</button>
+      <button data-t="monthly">Monthly</button>
+      <button data-t="yearly">Yearly</button>
+      <button data-t="lifetime">Lifetime</button>
+    </div>
+  `);
+  app.appendChild(tabs);
+  tabs.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.t===analysisTab);
+    b.addEventListener("click", ()=>{ analysisTab=b.dataset.t; render(); });
+  });
+
+  const series = computeSeries();
+  if(analysisTab==="weekly") renderWeeklyAnalysis(app, series);
+  else if(analysisTab==="monthly") renderMonthlyAnalysis(app, series);
+  else if(analysisTab==="yearly") renderYearlyAnalysis(app, series);
+  else renderLifetimeAnalysis(app, series);
+}
+
+function renderWeeklyAnalysis(app, series){
+  const wrap = el(`<div class="field"><label>Week ending</label><input type="date" id="weekEnd" value="${analysisWeekEnd}"></div>`);
+  app.appendChild(wrap);
+  wrap.querySelector("#weekEnd").addEventListener("change", ev=>{ analysisWeekEnd = ev.target.value||todayISO(); render(); });
+
+  const end = parseISO(analysisWeekEnd);
+  const start = addDays(end,-6);
+  const prevStart = addDays(start,-7), prevEnd = addDays(end,-7);
+  const inRange = (d,s,e2)=> d>=s && d<=e2;
+  const weekDays = series.days.filter(d=>inRange(d.dateObj, start, end));
+  const prevDays = series.days.filter(d=>inRange(d.dateObj, prevStart, prevEnd));
+  const total = weekDays.reduce((s,d)=>s+d.japa,0);
+  const prevTotal = prevDays.reduce((s,d)=>s+d.japa,0);
+  const avg = safeDiv(total,7);
+  const achv = safeDiv(total, settings.dailyTarget*7);
+  const trend = total>prevTotal?"Improving":total<prevTotal?"Declining":"Steady";
+  const mmComp = safeDiv(weekDays.filter(d=>d.mm==="Yes").length,7);
+  const smhkComp = safeDiv(weekDays.filter(d=>d.sm==="Yes"&&d.hk==="Yes").length,7);
+
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Weekly Total</div><div class="stat-value">${numFmt(total)}</div></div>
+      <div class="card tight"><div class="stat-label">Weekly Avg</div><div class="stat-value">${avg.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Achv %</div><div class="stat-value">${pct(achv)}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Trend vs prior week</div><div class="stat-value" style="font-size:15px;">
+        <span class="pill ${trend==='Improving'?'good':trend==='Declining'?'bad':'neutral'}">${trend}</span></div></div>
+      <div class="card tight"><div class="stat-label">MM / SM+HK compliance</div><div class="stat-value" style="font-size:15px;">${pct(mmComp)} · ${pct(smhkComp)}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`<div class="section-title">Daily comparison<div class="rule"></div></div>`));
+  const tbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Date</th><th class="right">Japa</th><th class="right">Achv %</th></tr></thead><tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  for(let d=new Date(start); d<=end; d=addDays(d,1)){
+    const key = toISO(d); const rec = series.byDate[key];
+    tbody.appendChild(el(`<tr><td>${fmtShort(d)}</td><td class="right num">${rec?numFmt(rec.japa):"0"}</td><td class="right num">${rec?pct(rec.achv):"0.0%"}</td></tr>`));
+  }
+  app.appendChild(tbl);
+}
+
+function renderMonthlyAnalysis(app, series){
+  const wrap = el(`<div class="field"><label>Month</label><input type="date" id="monthPick" value="${analysisMonth}"></div>`);
+  app.appendChild(wrap);
+  wrap.querySelector("#monthPick").addEventListener("change", ev=>{ analysisMonth = ev.target.value||todayISO(); render(); });
+
+  const anchor = parseISO(analysisMonth);
+  const monthStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const monthEnd = eomonth(anchor);
+  const monthDays = series.days.filter(d=>d.dateObj>=monthStart && d.dateObj<=monthEnd);
+  const total = monthDays.reduce((s,d)=>s+d.japa,0);
+  const daysInMonth = monthEnd.getDate();
+  const avgPerDay = safeDiv(total, daysInMonth);
+  const achv = safeDiv(total, settings.dailyTarget*daysInMonth);
+  const activeMonthDays = monthDays.filter(d=>d.japa>0);
+  let bestDay=null, lowestDay=null;
+  activeMonthDays.forEach(d=>{ if(!bestDay||d.japa>bestDay.japa) bestDay=d; if(!lowestDay||d.japa<lowestDay.japa) lowestDay=d; });
+  const perfectDays = monthDays.filter(d=>d.perfect).length;
+
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Monthly Total</div><div class="stat-value">${numFmt(total)}</div></div>
+      <div class="card tight"><div class="stat-label">Avg / Day</div><div class="stat-value">${avgPerDay.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Achv %</div><div class="stat-value">${pct(achv)}</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Best Day</div><div class="stat-value" style="font-size:13.5px;">${bestDay?fmtShort(bestDay.dateObj)+" ("+numFmt(bestDay.japa)+")":"N/A"}</div></div>
+      <div class="card tight"><div class="stat-label">Lowest Active Day</div><div class="stat-value" style="font-size:13.5px;">${lowestDay?fmtShort(lowestDay.dateObj)+" ("+numFmt(lowestDay.japa)+")":"N/A"}</div></div>
+      <div class="card tight"><div class="stat-label">Perfect Days</div><div class="stat-value">${perfectDays}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`<div class="section-title">Calendar heat map<div class="rule"></div></div>`));
+  const heatCard = el(`<div class="card tight"></div>`);
+  const grid = el(`<div class="heatgrid"></div>`);
+  DOW.forEach(d=>grid.appendChild(el(`<div class="dow">${d}</div>`)));
+  const firstDow = monthStart.getDay();
+  for(let i=0;i<firstDow;i++) grid.appendChild(el(`<div class="heatcell empty"></div>`));
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(anchor.getFullYear(), anchor.getMonth(), day);
+    const key = toISO(d);
+    const rec = series.byDate[key];
+    const a = rec ? rec.achv : 0;
+    let cls = "h0";
+    if(a>=1) cls="h3"; else if(a>=0.5) cls="h2"; else if(a>0) cls="h1";
+    const isToday = key===todayISO();
+    grid.appendChild(el(`<div class="heatcell ${cls} ${isToday?'today':''}" title="${key}: ${rec?numFmt(rec.japa):0}">${day}</div>`));
+  }
+  heatCard.appendChild(grid);
+  app.appendChild(heatCard);
+
+  app.appendChild(el(`<div class="section-title">Weekly totals (within month)<div class="rule"></div></div>`));
+  const wtbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Week</th><th class="right">Total Japa</th></tr></thead><tbody></tbody></table></div>`);
+  const wtbody = wtbl.querySelector("tbody");
+  for(let w=0; w<5; w++){
+    const wStart = addDays(monthStart, w*7);
+    if(wStart>monthEnd) break;
+    const wEnd = new Date(Math.min(addDays(wStart,6).getTime(), monthEnd.getTime()));
+    const wTotal = monthDays.filter(d=>d.dateObj>=wStart && d.dateObj<=wEnd).reduce((s,d)=>s+d.japa,0);
+    wtbody.appendChild(el(`<tr><td>Week ${w+1}</td><td class="right num">${numFmt(wTotal)}</td></tr>`));
+  }
+  app.appendChild(wtbl);
+
+  const mmYes = monthDays.filter(d=>d.mm==="Yes").length;
+  const smYes = monthDays.filter(d=>d.sm==="Yes").length;
+  const hkYes = monthDays.filter(d=>d.hk==="Yes").length;
+  const activeCount = monthDays.filter(d=>d.active).length;
+  app.appendChild(el(`<div class="section-title">Auto-generated summary<div class="rule"></div></div>`));
+  app.appendChild(el(`<div class="card">
+    <div style="font-size:13.5px; line-height:1.9;">
+      Japa target achieved: <b class="num">${activeCount}</b>/${daysInMonth} days<br>
+      MM success: <b class="num">${pct(safeDiv(mmYes,daysInMonth))}</b><br>
+      SM success: <b class="num">${pct(safeDiv(smYes,daysInMonth))}</b><br>
+      HK success: <b class="num">${pct(safeDiv(hkYes,daysInMonth))}</b><br>
+      Perfect days: <b class="num">${perfectDays}</b><br>
+      Monthly achievement: <b class="num">${pct(achv)}</b>
+    </div>
+  </div>`));
+}
+
+function renderYearlyAnalysis(app, series){
+  const wrap = el(`<div class="field"><label>Year</label><input type="number" id="yearPick" value="${analysisYear}"></div>`);
+  app.appendChild(wrap);
+  wrap.querySelector("#yearPick").addEventListener("change", ev=>{ analysisYear = Number(ev.target.value)||new Date().getFullYear(); render(); });
+
+  const yearDays = series.days.filter(d=>d.dateObj.getFullYear()===analysisYear);
+  const total = yearDays.reduce((s,d)=>s+d.japa,0);
+  const activeDays = yearDays.filter(d=>d.active).length;
+  const daysCount = yearDays.length || 1;
+  const avgPerDay = safeDiv(total, daysCount);
+  const monthlyAvg = safeDiv(total, 12);
+  const achv = safeDiv(total, settings.dailyTarget*daysCount);
+
+  const yStart = new Date(analysisYear,0,1), yEnd = new Date(analysisYear,11,31);
+  const cumAtStart = series.byDate[toISO(addDays(yStart,-1))]?.cum || 0;
+  const cumAtEnd = yearDays.length ? yearDays[yearDays.length-1].cum : cumAtStart;
+  const list = settings.milestones;
+  const msThisYear = list.filter(m=>m>cumAtStart && m<=cumAtEnd).length;
+
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Year Total</div><div class="stat-value">${numFmt(total)}</div></div>
+      <div class="card tight"><div class="stat-label">Monthly Avg</div><div class="stat-value">${monthlyAvg.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Active Days</div><div class="stat-value">${activeDays}</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Avg / Day</div><div class="stat-value">${avgPerDay.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Achv %</div><div class="stat-value">${pct(achv)}</div></div>
+      <div class="card tight"><div class="stat-label">Milestones (yr)</div><div class="stat-value">${msThisYear}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`<div class="section-title">Jan – Dec comparison<div class="rule"></div></div>`));
+  const monthlyTotals = MONTHS.map((name,i)=>{
+    const mStart = new Date(analysisYear,i,1), mEnd = eomonth(mStart);
+    const t = yearDays.filter(d=>d.dateObj>=mStart && d.dateObj<=mEnd).reduce((s,d)=>s+d.japa,0);
+    return {name, t};
+  });
+  const maxT = Math.max(1, ...monthlyTotals.map(m=>m.t));
+  const chart = el(`<div class="card"><div class="barchart"></div></div>`);
+  const bc = chart.querySelector(".barchart");
+  monthlyTotals.forEach(m=>{
+    bc.appendChild(el(`<div class="bar"><div class="fill" style="height:${clamp(m.t/maxT*100,1,100)}%"></div><div class="lbl">${m.name.slice(0,3)}</div></div>`));
+  });
+  app.appendChild(chart);
+
+  let best=monthlyTotals[0], low=monthlyTotals[0];
+  monthlyTotals.forEach(m=>{ if(m.t>best.t) best=m; if(m.t<low.t) low=m; });
+  app.appendChild(el(`
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Best Month</div><div class="stat-value" style="font-size:14px;">${best.name} (${numFmt(best.t)})</div></div>
+      <div class="card tight"><div class="stat-label">Lowest Month</div><div class="stat-value" style="font-size:14px;">${low.name} (${numFmt(low.t)})</div></div>
+    </div>
+  `));
+}
+
+function renderLifetimeAnalysis(app, series){
+  const cum = series.days.length ? series.days[series.days.length-1].cum : 0;
+  const activeDays = series.days.reduce((s,d)=>s+d.active,0);
+  const avg = safeDiv(cum, series.days.length||1);
+  const achv = safeDiv(cum, settings.lifetimeTarget);
+  const remaining = Math.max(settings.lifetimeTarget-cum,0);
+  const est = avg>0 ? addDays(todayDate(), Math.ceil(remaining/avg)) : null;
+
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Lifetime Total</div><div class="stat-value">${numFmt(cum)}</div></div>
+      <div class="card tight"><div class="stat-label">Lifetime Avg</div><div class="stat-value">${avg.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Active Days</div><div class="stat-value">${activeDays}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Progress %</div><div class="stat-value">${pct(achv)}</div></div>
+      <div class="card tight"><div class="stat-label">Est. Completion</div><div class="stat-value" style="font-size:14px;">${est?fmtShort(est)+" "+est.getFullYear():"N/A"}</div></div>
+    </div>
+  `));
+
+  app.appendChild(el(`<div class="section-title">Year-wise comparison<div class="rule"></div></div>`));
+  const startYear = parseISO(settings.startDate).getFullYear();
+  const thisYear = new Date().getFullYear();
+  const tbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Year</th><th class="right">Total Japa</th></tr></thead><tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  for(let y=startYear; y<=Math.max(thisYear, startYear); y++){
+    const t = series.days.filter(d=>d.dateObj.getFullYear()===y).reduce((s,d)=>s+d.japa,0);
+    tbody.appendChild(el(`<tr><td>${y}</td><td class="right num">${numFmt(t)}</td></tr>`));
+  }
+  app.appendChild(tbl);
+}
+
+/* ============================================================
+   PAGE: Discipline
+   ============================================================ */
+function renderDiscipline(app){
+  app.appendChild(el(`<div class="page-title"><h1>Discipline</h1><p>Long-term consistency tracking — fully automatic.</p></div>`));
+  const series = computeSeries();
+  const today = series.byDate[todayISO()];
+  const last30 = new Date(); last30.setDate(last30.getDate()-30);
+  const prior30start = new Date(); prior30start.setDate(prior30start.getDate()-60);
+  const prior30end = new Date(); prior30end.setDate(prior30end.getDate()-30);
+
+  const tbl = el(`<div class="card tight"><table class="simple">
+    <thead><tr><th>Discipline</th><th class="right">Streak</th><th class="right">Best</th><th class="right">Rate</th><th class="right">Trend</th></tr></thead>
+    <tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  VICE_KEYS.forEach(v=>{
+    const curStreak = today ? today.viceStreakSnapshot[v] : 0;
+    const longest = series.viceLongest[v]||0;
+    const yes = series.days.filter(d=>d.viceVals[v]==="Yes").length;
+    const no = series.days.filter(d=>d.viceVals[v]==="No").length;
+    const rate = safeDiv(yes, yes+no);
+    const recent = series.days.filter(d=>d.dateObj>last30 && d.dateObj<=todayDate());
+    const prior = series.days.filter(d=>d.dateObj>prior30start && d.dateObj<=prior30end);
+    const recentRate = safeDiv(recent.filter(d=>d.viceVals[v]==="Yes").length, 30);
+    const priorRate = safeDiv(prior.filter(d=>d.viceVals[v]==="Yes").length, 30);
+    const trend = recentRate>priorRate?"Improving":recentRate<priorRate?"Declining":"Steady";
+    tbody.appendChild(el(`<tr>
+      <td>${VICE_LABELS[v]}</td>
+      <td class="right num">${curStreak}</td>
+      <td class="right num">${longest}</td>
+      <td class="right num">${pct(rate)}</td>
+      <td class="right"><span class="pill ${trend==='Improving'?'good':trend==='Declining'?'bad':'neutral'}" style="font-size:10px;">${trend}</span></td>
+    </tr>`));
+  });
+  app.appendChild(tbl);
+
+  const perfectDays = series.days.filter(d=>d.perfect).length;
+  const activeDays = series.days.filter(d=>d.active).length;
+  const overallRate = safeDiv(perfectDays, activeDays||1);
+  const curPerfectStreak = today ? today.perfectStreak : 0;
+
+  app.appendChild(el(`<div class="section-title">Perfect discipline<div class="rule"></div></div>`));
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Perfect Days</div><div class="stat-value">${perfectDays}</div></div>
+      <div class="card tight"><div class="stat-label">Success Rate</div><div class="stat-value">${pct(overallRate)}</div></div>
+      <div class="card tight"><div class="stat-label">Current Streak</div><div class="stat-value">${curPerfectStreak}</div></div>
+    </div>
+  `));
+}
+
+/* ============================================================
+   PAGE: Milestones
+   ============================================================ */
+function renderMilestones(app){
+  app.appendChild(el(`<div class="page-title"><h1>Milestones</h1><p>Automatically tracked from cumulative lifetime japa.</p></div>`));
+  const series = computeSeries();
+  const ms = milestoneStatus(series);
+  const nextProgress = ms.next ? safeDiv(ms.cum, ms.next) : 1;
+
+  app.appendChild(el(`
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Achieved</div><div class="stat-value">${ms.achievedCount} / ${ms.list.length}</div></div>
+      <div class="card tight"><div class="stat-label">Next Milestone</div><div class="stat-value" style="font-size:15px;">${ms.next?numFmt(ms.next):"Complete"}</div></div>
+    </div>
+  `));
+  const pcard = el(`<div class="card"><div class="stat-label">Progress to next milestone</div></div>`);
+  pcard.appendChild(el(`<div class="pbar" style="margin-top:6px;"><div style="width:${clamp(nextProgress*100,0,100)}%"></div></div>`));
+  pcard.appendChild(el(`<div class="stat-sub" style="margin-top:6px;">${pct(nextProgress)}</div>`));
+  app.appendChild(pcard);
+
+  app.appendChild(el(`<div class="section-title">Timeline<div class="rule"></div></div>`));
+  const list = el(`<div class="card tight"></div>`);
+  ms.list.forEach((target,i)=>{
+    const achieved = ms.cum>=target;
+    const progress = clamp(safeDiv(ms.cum,target),0,1);
+    let completionDate = "Not yet";
+    if(achieved){
+      const day = series.days.find(d=>d.cum>=target);
+      if(day) completionDate = fmtShort(day.dateObj)+" "+day.dateObj.getFullYear();
+    }
+    list.appendChild(el(`
+      <div class="milestone-item ${achieved?'achieved':''}">
+        <div class="mi-num">${i+1}</div>
+        <div class="mi-body">
+          <div class="mi-target">${numFmt(target)}</div>
+          <div class="mi-meta">${achieved?"Achieved · "+completionDate:pct(progress)+" complete"}</div>
+        </div>
+        <div>${achieved?'<span class="pill good">Done</span>':'<span class="pill neutral">Pending</span>'}</div>
+      </div>
+    `));
+  });
+  app.appendChild(list);
+}
+
+/* ============================================================
+   PAGE: Reports
+   ============================================================ */
+function renderReports(app){
+  app.appendChild(el(`<div class="page-title"><h1>Reports</h1><p>Print-ready monthly, yearly and lifetime summaries.</p></div>`));
+  const tabs = el(`<div class="subtabs no-print">
+      <button data-t="monthly">Monthly</button>
+      <button data-t="yearly">Yearly</button>
+      <button data-t="lifetime">Lifetime</button>
+    </div>`);
+  app.appendChild(tabs);
+  tabs.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.t===reportsTab);
+    b.addEventListener("click", ()=>{ reportsTab=b.dataset.t; render(); });
+  });
+
+  const series = computeSeries();
+  if(reportsTab==="monthly") reportMonthly(app, series);
+  else if(reportsTab==="yearly") reportYearly(app, series);
+  else reportLifetime(app, series);
+
+  app.appendChild(el(`<button class="btn secondary block no-print" id="printBtn" style="margin-top:10px;">Print / Export as PDF</button>`));
+  app.querySelector("#printBtn").addEventListener("click", ()=>window.print());
+}
+
+function reportMonthly(app, series){
+  const wrap = el(`<div class="field no-print"><label>Month</label><input type="date" id="repMonth" value="${analysisMonth}"></div>`);
+  app.appendChild(wrap);
+  wrap.querySelector("#repMonth").addEventListener("change", ev=>{ analysisMonth=ev.target.value||todayISO(); render(); });
+
+  const anchor = parseISO(analysisMonth);
+  const monthStart = new Date(anchor.getFullYear(),anchor.getMonth(),1), monthEnd = eomonth(anchor);
+  const monthDays = series.days.filter(d=>d.dateObj>=monthStart && d.dateObj<=monthEnd);
+  const total = monthDays.reduce((s,d)=>s+d.japa,0);
+  const daysInMonth = monthEnd.getDate();
+  const target = settings.dailyTarget*daysInMonth;
+
+  app.appendChild(el(`<h2>${fmtMonthYear(anchor)}</h2>`));
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Total Japa</div><div class="stat-value">${numFmt(total)}</div></div>
+      <div class="card tight"><div class="stat-label">Daily Target</div><div class="stat-value">${numFmt(settings.dailyTarget)}</div></div>
+      <div class="card tight"><div class="stat-label">Monthly Target</div><div class="stat-value">${numFmt(target)}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Achievement %</div><div class="stat-value">${pct(safeDiv(total,target))}</div></div>
+      <div class="card tight"><div class="stat-label">Avg / Day</div><div class="stat-value">${safeDiv(total,daysInMonth).toFixed(1)}</div></div>
+    </div>
+  `));
+  const tbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Date</th><th class="right">Japa</th><th class="right">Achv%</th><th class="center">MM</th><th class="center">SM</th><th class="center">HK</th></tr></thead><tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  monthDays.forEach(d=>{
+    tbody.appendChild(el(`<tr><td>${fmtShort(d.dateObj)}</td><td class="right num">${numFmt(d.japa)}</td><td class="right num">${pct(d.achv)}</td><td class="center">${d.mm||"-"}</td><td class="center">${d.sm||"-"}</td><td class="center">${d.hk||"-"}</td></tr>`));
+  });
+  app.appendChild(tbl);
+}
+
+function reportYearly(app, series){
+  const wrap = el(`<div class="field no-print"><label>Year</label><input type="number" id="repYear" value="${analysisYear}"></div>`);
+  app.appendChild(wrap);
+  wrap.querySelector("#repYear").addEventListener("change", ev=>{ analysisYear=Number(ev.target.value)||new Date().getFullYear(); render(); });
+
+  const yearDays = series.days.filter(d=>d.dateObj.getFullYear()===analysisYear);
+  const total = yearDays.reduce((s,d)=>s+d.japa,0);
+  const daysCount = (new Date(analysisYear,11,31)-new Date(analysisYear,0,1))/86400000+1;
+  const target = settings.dailyTarget*daysCount;
+  const best = yearDays.reduce((m,d)=>d.japa>(m?m.japa:-1)?d:m, null);
+
+  app.appendChild(el(`<h2>${analysisYear} Annual Report</h2>`));
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Year Total</div><div class="stat-value">${numFmt(total)}</div></div>
+      <div class="card tight"><div class="stat-label">Yearly Target</div><div class="stat-value">${numFmt(target)}</div></div>
+      <div class="card tight"><div class="stat-label">Achv %</div><div class="stat-value">${pct(safeDiv(total,target))}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Best Day</div><div class="stat-value" style="font-size:14px;">${best?numFmt(best.japa)+" ("+fmtShort(best.dateObj)+")":"N/A"}</div></div>
+      <div class="card tight"><div class="stat-label">Avg / Day</div><div class="stat-value">${safeDiv(total,daysCount).toFixed(1)}</div></div>
+    </div>
+  `));
+  const tbl = el(`<div class="card tight"><table class="simple"><thead><tr><th>Month</th><th class="right">Total Japa</th></tr></thead><tbody></tbody></table></div>`);
+  const tbody = tbl.querySelector("tbody");
+  MONTHS.forEach((name,i)=>{
+    const mStart=new Date(analysisYear,i,1), mEnd=eomonth(mStart);
+    const t = yearDays.filter(d=>d.dateObj>=mStart && d.dateObj<=mEnd).reduce((s,d)=>s+d.japa,0);
+    tbody.appendChild(el(`<tr><td>${name}</td><td class="right num">${numFmt(t)}</td></tr>`));
+  });
+  app.appendChild(tbl);
+}
+
+function reportLifetime(app, series){
+  const cum = series.days.length?series.days[series.days.length-1].cum:0;
+  const activeDays = series.days.filter(d=>d.active).length;
+  const avg = safeDiv(cum, series.days.length||1);
+  const today = series.byDate[todayISO()];
+  const ms = milestoneStatus(series);
+  const remaining = Math.max(settings.lifetimeTarget-cum,0);
+  const est = avg>0?addDays(todayDate(), Math.ceil(remaining/avg)):null;
+
+  app.appendChild(el(`<h2>Lifetime Summary</h2>`));
+  app.appendChild(el(`
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Lifetime Total</div><div class="stat-value">${numFmt(cum)}</div></div>
+      <div class="card tight"><div class="stat-label">Lifetime Target</div><div class="stat-value">${numFmt(settings.lifetimeTarget)}</div></div>
+      <div class="card tight"><div class="stat-label">Remaining</div><div class="stat-value">${numFmt(remaining)}</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card tight"><div class="stat-label">Achievement %</div><div class="stat-value">${pct(safeDiv(cum,settings.lifetimeTarget))}</div></div>
+      <div class="card tight"><div class="stat-label">Active Days</div><div class="stat-value">${activeDays}</div></div>
+      <div class="card tight"><div class="stat-label">Streak (cur/best)</div><div class="stat-value" style="font-size:14px;">${today?today.streak:0} / ${series.longestStreak}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card tight"><div class="stat-label">Avg Daily Japa</div><div class="stat-value">${avg.toFixed(1)}</div></div>
+      <div class="card tight"><div class="stat-label">Est. Completion</div><div class="stat-value" style="font-size:14px;">${est?fmtShort(est)+" "+est.getFullYear():"N/A"}</div></div>
+    </div>
+    <div class="card tight"><div class="stat-label">Milestones Achieved</div><div class="stat-value">${ms.achievedCount} / ${ms.list.length}</div></div>
+  `));
+}
+
+/* ============================================================
+   PAGE: Sadhana Rules
+   ============================================================ */
+function renderRules(app){
+  app.appendChild(el(`<div class="page-title"><h1>Sadhana Rules</h1><p>Editable list of disciplines to observe.</p></div>`));
+
+  const groups = [["mm","MM · Mool Maya"],["sm","SM · Sookshma Maya"],["hk","HK · Habitual Karma"]];
+  groups.forEach(([key,label])=>{
+    app.appendChild(el(`<div class="section-title">${label}<div class="rule"></div></div>`));
+    const card = el(`<div class="card tight"><ul class="rule-list" data-key="${key}"></ul>
+      <button class="btn secondary sm" data-add="${key}" style="margin-top:10px;">+ Add item</button></div>`);
+    const list = card.querySelector("ul");
+    rules[key].forEach((item,i)=>{
+      list.appendChild(el(`<li><span class="idx">${i+1}</span><input type="text" value="${item.replace(/"/g,'&quot;')}" data-idx="${i}"><button data-del="${i}">✕</button></li>`));
+    });
+    list.addEventListener("change", ev=>{
+      if(ev.target.matches("input")){
+        rules[key][Number(ev.target.dataset.idx)] = ev.target.value;
+        persistRules();
+      }
+    });
+    list.addEventListener("click", ev=>{
+      if(ev.target.matches("[data-del]")){
+        rules[key].splice(Number(ev.target.dataset.del),1);
+        persistRules(); render();
+      }
+    });
+    card.querySelector("[data-add]").addEventListener("click", ()=>{
+      rules[key].push("New item"); persistRules(); render();
+    });
+    app.appendChild(card);
+  });
+
+  app.appendChild(el(`<div class="section-title">Core practice reference<div class="rule"></div></div>`));
+  const mCard = el(`<div class="card"><div class="field"><label>Main Mantra</label><textarea id="mantraField">${rules.mantra||""}</textarea></div></div>`);
+  app.appendChild(mCard);
+  mCard.querySelector("#mantraField").addEventListener("change", ev=>{ rules.mantra=ev.target.value; persistRules(); toast("Saved"); });
+}
+
+/* ============================================================
+   PAGE: Motivation
+   ============================================================ */
+function renderMotivation(app){
+  app.appendChild(el(`<div class="page-title"><h1>Motivation</h1><p>Quotations, teachings and personal reminders.</p></div>`));
+  const tabs = el(`<div class="subtabs">
+    <button data-p="page1">Quotations & Teachings</button>
+    <button data-p="page2">Personal Reminders</button>
+    <button data-p="page3">Inspirational Notes</button>
+  </div>`);
+  app.appendChild(tabs);
+  tabs.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.p===motivationPage);
+    b.addEventListener("click", ()=>{ motivationPage=b.dataset.p; render(); });
+  });
+  const card = el(`<div class="card"><div class="field"><textarea id="noteArea" style="min-height:340px;" placeholder="Write freely here — saved automatically on this device...">${notes[motivationPage]||""}</textarea></div></div>`);
+  app.appendChild(card);
+  let t=null;
+  card.querySelector("#noteArea").addEventListener("input", ev=>{
+    clearTimeout(t);
+    const val = ev.target.value;
+    t=setTimeout(()=>{ notes[motivationPage]=val; persistNotes(); toast("Saved"); }, 700);
+  });
+}
+
+/* ============================================================
+   PAGE: Settings
+   ============================================================ */
+function renderSettings(app){
+  app.appendChild(el(`<div class="page-title"><h1>Settings</h1><p>Configure workbook parameters — changes update every module.</p></div>`));
+
+  const core = el(`<div class="card settings-group"><h3>Core parameters</h3></div>`);
+  core.appendChild(el(`<div class="field"><label>Practice start date</label><input type="date" id="s_start" value="${settings.startDate}"></div>`));
+  core.appendChild(el(`<div class="field"><label>Daily japa target (rounds)</label><input type="number" min="1" id="s_daily" value="${settings.dailyTarget}"></div>`));
+  core.appendChild(el(`<div class="field"><label>Lifetime japa target</label><input type="number" min="1" id="s_life" value="${settings.lifetimeTarget}"></div>`));
+  core.appendChild(el(`<div class="field"><label>Theme</label>
+    <select id="s_theme"><option value="dark" ${settings.theme==='dark'?'selected':''}>Dark</option><option value="light" ${settings.theme==='light'?'selected':''}>Light</option></select></div>`));
+  core.appendChild(el(`<button class="btn block" id="saveCoreBtn">Save settings</button>`));
+  app.appendChild(core);
+  core.querySelector("#saveCoreBtn").addEventListener("click", ()=>{
+    settings.startDate = core.querySelector("#s_start").value || settings.startDate;
+    settings.dailyTarget = Number(core.querySelector("#s_daily").value)||settings.dailyTarget;
+    settings.lifetimeTarget = Number(core.querySelector("#s_life").value)||settings.lifetimeTarget;
+    settings.theme = core.querySelector("#s_theme").value;
+    persistSettings(); invalidateSeries(); applyTheme(); toast("Settings saved");
+    render();
+  });
+
+  app.appendChild(el(`<div class="section-title">Milestones (lifetime cumulative japa)<div class="rule"></div></div>`));
+  const msCard = el(`<div class="card tight"><ul class="rule-list" id="msList"></ul>
+    <button class="btn secondary sm" id="addMs" style="margin-top:10px;">+ Add milestone</button></div>`);
+  const msList = msCard.querySelector("#msList");
+  settings.milestones.forEach((m,i)=>{
+    msList.appendChild(el(`<li><span class="idx">${i+1}</span><input type="number" value="${m}" data-idx="${i}"><button data-del="${i}">✕</button></li>`));
+  });
+  msList.addEventListener("change", ev=>{
+    if(ev.target.matches("input")){ settings.milestones[Number(ev.target.dataset.idx)] = Number(ev.target.value)||0; persistSettings(); invalidateSeries(); }
+  });
+  msList.addEventListener("click", ev=>{
+    if(ev.target.matches("[data-del]")){ settings.milestones.splice(Number(ev.target.dataset.del),1); persistSettings(); invalidateSeries(); render(); }
+  });
+  msCard.querySelector("#addMs").addEventListener("click", ()=>{ settings.milestones.push((settings.milestones.at(-1)||0)+1000000); persistSettings(); render(); });
+  app.appendChild(msCard);
+
+  app.appendChild(el(`<div class="section-title">Data<div class="rule"></div></div>`));
+  const dataCard = el(`<div class="card">
+    <div class="stat-sub" style="margin-bottom:12px;">All data is stored only on this device. Export a backup regularly, especially before clearing browser data.</div>
+    <div class="row">
+      <button class="btn secondary block" id="exportBtn">Export backup (.json)</button>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn secondary block" id="importBtn">Import backup</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none;">
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn danger block" id="resetBtn">Reset all data</button>
+    </div>
+  </div>`);
+  app.appendChild(dataCard);
+  dataCard.querySelector("#exportBtn").addEventListener("click", exportBackup);
+  dataCard.querySelector("#importBtn").addEventListener("click", ()=>dataCard.querySelector("#importFile").click());
+  dataCard.querySelector("#importFile").addEventListener("change", importBackup);
+  dataCard.querySelector("#resetBtn").addEventListener("click", ()=>{
+    if(confirm("This will permanently delete all entries, settings and notes on this device. Continue?")){
+      if(confirm("Are you absolutely sure? This cannot be undone.")){
+        localStorage.removeItem("sadhana.settings");
+        localStorage.removeItem("sadhana.entries");
+        localStorage.removeItem("sadhana.rules");
+        localStorage.removeItem("sadhana.notes");
+        location.reload();
+      }
+    }
+  });
+
+  app.appendChild(el(`<div class="empty-note" style="text-align:center;margin-top:10px;">Sadhana · offline personal practice tracker</div>`));
+}
+
+function exportBackup(){
+  const payload = {settings, entries, rules, notes, exportedAt:new Date().toISOString(), version:1};
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `sadhana-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast("Backup downloaded");
+}
+function importBackup(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(data.settings) settings = Object.assign({}, DEFAULT_SETTINGS, data.settings);
+      if(data.entries) entries = data.entries;
+      if(data.rules) rules = Object.assign({}, DEFAULT_RULES, data.rules);
+      if(data.notes) notes = Object.assign({}, DEFAULT_NOTES, data.notes);
+      persistSettings(); persistEntries(); persistRules(); persistNotes();
+      invalidateSeries(); applyTheme();
+      toast("Backup restored");
+      render();
+    }catch(e){ alert("Could not read that file. Make sure it is a Sadhana backup .json file."); }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------------- theme ---------------- */
+function applyTheme(){ document.body.setAttribute("data-theme", settings.theme||"dark"); }
+
+/* ---------------- init ---------------- */
+applyTheme();
+navigate("dashboard");
+</script>
+</body>
+</html>
